@@ -34,6 +34,10 @@ module Bolero::Step
       end if params
     end
 
+    def clear_persisted_data!
+      persisted_step.destroy!
+    end
+
     def url_helpers
       Rails.application.routes.url_helpers
     end
