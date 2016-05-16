@@ -20,6 +20,10 @@ module Bolero::Step
       return false unless valid?
 
       @session[:bolero_session_data] = @sensitive_data.to_yaml if @sensitive_data
+
+      klass = self.class.to_s.classify
+      completed_steps[klass] = { completed_at: Time.zone.now }
+
       persisted_step.save
     end
 
@@ -38,10 +42,15 @@ module Bolero::Step
       persisted_step.persisted_data
     end
 
+    def completed_steps
+      persisted_step.completed_steps
+    end
+
     def persisted_step
       @persisted_step ||= begin
         step = Bolero::PersistedStep.find_or_initialize_by(session_id: @session.id)
         step.persisted_data ||= {}
+        step.completed_steps ||= {}
         step
       end
     end
@@ -61,7 +70,7 @@ module Bolero::Step
     def attr_bolero_reader(*args)
       args.each do |arg|
         define_method arg do
-          persisted_data[arg]
+          persisted_data[arg.to_s]
         end
       end
     end
