@@ -35,11 +35,15 @@ module Bolero::Step
     end
 
     def persisted_data
-      @persisted_data ||= persisted_step.persisted_data
+      persisted_step.persisted_data
     end
 
     def persisted_step
-      @persisted_step ||= Bolero::PersistedStep.find_or_initialize_by(session_id: @session.id)
+      @persisted_step ||= begin
+        step = Bolero::PersistedStep.find_or_initialize_by(session_id: @session.id)
+        step.persisted_data ||= {}
+        step
+      end
     end
 
     def sensitive_data
@@ -55,17 +59,29 @@ module Bolero::Step
 
   module ClassMethods
     def attr_bolero_reader(*args)
-      args.each { |arg| delegate arg, to: :persisted_data }
+      args.each do |arg|
+        define_method arg do
+          persisted_data[arg]
+        end
+      end
     end
 
     def attr_bolero_writer(*args)
-      args.each { |arg| delegate "#{arg}=", to: :persisted_data }
+      args.each do |arg|
+        define_method "#{arg}=" do |param|
+          persisted_data[arg.to_s] = param
+        end
+      end
     end
 
     def attr_bolero_accessor(*args)
       args.each do |arg|
-        delegate arg, to: :persisted_data
-        delegate "#{arg}=", to: :persisted_data
+        define_method arg do
+          persisted_data[arg.to_s]
+        end
+        define_method "#{arg}=" do |param|
+          persisted_data[arg.to_s] = param
+        end
       end
     end
 
