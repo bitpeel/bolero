@@ -4,6 +4,7 @@ module Bolero::Step
     base.extend(ClassMethods)
     base.class_eval do
       include ActiveModel::Model
+      include ActiveModel::Validations::Callbacks
       cattr_accessor :persistent_accessors
       self.persistent_accessors = []
     end
