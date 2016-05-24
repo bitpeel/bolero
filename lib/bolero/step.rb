@@ -55,6 +55,12 @@ module Bolero::Step
         step = Bolero::PersistedStep.find_or_initialize_by(session_id: @session.id)
         step.persisted_data ||= {}
         step.completed_steps ||= {}
+
+        if step.expired?
+          step.persisted_data.clear
+          step.completed_steps.clear
+        end
+
         step
       end
     end

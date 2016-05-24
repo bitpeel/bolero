@@ -3,4 +3,8 @@ class Bolero::PersistedStep < ActiveRecord::Base
 
   serialize :persisted_data, JSON
   serialize :completed_steps, JSON
+
+  def expired?
+    updated_at < 2.hours.ago
+  end
 end
