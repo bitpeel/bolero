@@ -75,9 +75,74 @@ module Bolero::Step
         end
       end
     end
+
+    def first_step_path
+      self.class.steps.first[:path]
+    end
+
+    def last_step_path
+      self.class.steps.last[:path]
+    end
+
+    def path
+      current_step[:path]
+    end
+
+    def current_step
+      klass = self.class
+      klass.steps.detect { |i| i[:class] == klass.to_s }
+    end
+
+    def previous_steps
+      klass = self.class
+      klass.steps.reverse.drop_while { |i| i[:class] != klass.to_s }.drop(1)
+    end
+
+    def previous_step_path
+      klass = self.class.to_s
+
+      previous_steps.each do |step|
+        step_meta = completed_steps[step[:class]]
+        unless step_meta.has_key?("skipped_at")
+          return step[:path]
+        end
+      end
+
+      nil
+    end
+
+    def next_step_path
+      klass = self.class
+
+      remaining_steps = klass.steps.drop_while { |i| i[:class] != klass.to_s }.drop(1)
+      remaining_steps.first[:path]
+    end
+
+
+    def validate_steps
+      previous_steps.each do |step|
+        step_class = step[:class].to_s
+        unless completed_steps.has_key?(step_class)
+          raise Bolero::MissingStepError.new(current_step: self, missing_step: step_class)
+        end
+      end
+
+      if respond_to?(:skip_step?) && skip_step?
+        skip_step
+        raise Bolero::SkipStepError.new(self)
+      end
+    end
+
+    def skip_step
+      klass = self.class.to_s.classify
+      completed_steps[klass] = { skipped_at: Time.zone.now }
+      persisted_step.save
+    end
   end
 
   module ClassMethods
+    mattr_accessor :steps
+
     def attr_bolero_reader(*args)
       args.each do |arg|
         define_method arg do
@@ -127,6 +192,17 @@ module Bolero::Step
       define_method name do
         class_name.constantize.find_by(id: persisted_data[foreign_key])
       end
+    end
+
+    def url_helpers
+      Rails.application.routes.url_helpers
+    end
+
+    def step(step_name, step_params = {})
+      self.steps ||= []
+
+      step = {step_name: step_name, path: step_params[:path], class: step_params[:class]}
+      self.steps << step
     end
   end
 end
