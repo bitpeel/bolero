@@ -6,7 +6,9 @@ module Bolero::Step
       include ActiveModel::Model
       include ActiveModel::Validations::Callbacks
       cattr_accessor :persistent_accessors
+      cattr_accessor :steps
       self.persistent_accessors = []
+      self.steps = []
     end
   end
 
@@ -141,7 +143,6 @@ module Bolero::Step
   end
 
   module ClassMethods
-    mattr_accessor :steps
 
     def attr_bolero_reader(*args)
       args.each do |arg|
@@ -199,8 +200,6 @@ module Bolero::Step
     end
 
     def step(step_name, step_params = {})
-      self.steps ||= []
-
       step = {step_name: step_name, path: step_params[:path], class: step_params[:class]}
       self.steps << step
     end
