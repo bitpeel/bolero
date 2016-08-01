@@ -81,15 +81,15 @@ module Bolero::Step
     end
 
     def first_step_path
-      self.class.steps.first[:path]
+      url_helpers.send self.class.steps.first[:path]
     end
 
     def last_step_path
-      self.class.steps.last[:path]
+      url_helpers.send self.class.steps.last[:path]
     end
 
     def path
-      current_step[:path]
+      url_helpers.send current_step[:path]
     end
 
     def current_step
@@ -108,7 +108,7 @@ module Bolero::Step
       previous_steps.each do |step|
         step_meta = completed_steps[step[:class]]
         unless step_meta.has_key?("skipped_at")
-          return step[:path]
+          return url_helpers.send step[:path]
         end
       end
 
@@ -119,7 +119,7 @@ module Bolero::Step
       klass = self.class
 
       remaining_steps = klass.steps.drop_while { |i| i[:class] != klass.to_s }.drop(1)
-      remaining_steps.first[:path]
+      url_helpers.send remaining_steps.first[:path]
     end
 
 
