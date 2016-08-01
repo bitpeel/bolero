@@ -39,6 +39,8 @@ module Bolero::Step
 
     def clear_persisted_data!
       persisted_step.destroy!
+      @session.delete(:bolero_session_data)
+      @sensitive_data = nil
     end
 
     def url_helpers
