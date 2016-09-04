@@ -19,6 +19,11 @@ module Bolero::Step
       persisted_step.session_id = session.id
     end
 
+    def scope=(scope)
+      @scope = scope
+      scope.each { |key, value| persisted_step.send("#{key}=", value) }
+    end
+
     def save
       return false unless valid?
 
