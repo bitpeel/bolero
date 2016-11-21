@@ -10,14 +10,13 @@ Gem::Specification.new do |s|
   s.authors     = ["Matt Goatcher"]
   s.email       = ["matt@bitpeel.com"]
   s.homepage    = "http://github.com/bitpeel/bolero"
-  s.summary     = "Comging soon"
-  s.description = "Comging soon"
+  s.summary     = "Coming soon"
+  s.description = "Coming soon"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README"]
 
   s.add_dependency "rails", "~> 4.2"
-  s.add_dependency "pg"
 
   s.add_development_dependency "rspec", "~> 3.0"
 end
