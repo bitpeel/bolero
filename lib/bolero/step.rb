@@ -129,7 +129,7 @@ module Bolero::Step
 
 
     def validate_steps
-      previous_steps.each do |step|
+      previous_steps.reverse.each do |step|
         step_class = step[:class].to_s
         unless completed_steps.has_key?(step_class)
           raise Bolero::MissingStepError.new(current_step: self, missing_step: step_class)
